@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     public int quoteNo = 0;
     TextView counterTextView;
     String counterString;
+    ArrayList<String> filters = new ArrayList<>();
 
     String searchString;
 
@@ -246,7 +247,8 @@ public class MainActivity extends AppCompatActivity {
                 } while (c.moveToNext());
                 c.close();
             } else {
-                Log.i("Filter Memory", "None present");
+                Log.i("Filter Memory", "None present, using defaults");
+                enabledFilters.addAll(filters);
             }
         } catch (Exception e) {e.printStackTrace();}
 
@@ -278,13 +280,13 @@ public class MainActivity extends AppCompatActivity {
                 c.moveToFirst();
                 if (c.getInt(0) == 0) {
                     Log.i("Filter Check Result", "No Filters Found");
-                    /*Log.i("Filter Check Result", "No Filters Found, applying defaults");
+                    Log.i("Filter Check Result", "No Filters Found, applying defaults");
 
                     Toast.makeText(this, "No enabled filters found.\nEnabling default filters...", Toast.LENGTH_SHORT).show();
 
                     // Add default filters to the app
 
-                    ArrayList<String> filters = new ArrayList<>();
+                    //ArrayList<String> filters = new ArrayList<>();
 
                     filters.add("categoryOne");
                     filters.add("categoryTwo");
@@ -296,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
                     filters.add("categoryEight");
                     filters.add("categoryNine");
                     filters.add("categoryTen");
-
+/*
                     for (int i = 0; i < filters.size(); i++) {
 
                         String addFilter = "INSERT INTO filterLibrary (filterName) VALUES ('" + filters.get(i) + "')";

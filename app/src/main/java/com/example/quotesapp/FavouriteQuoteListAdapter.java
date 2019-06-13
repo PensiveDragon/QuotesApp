@@ -1,6 +1,8 @@
 package com.example.quotesapp;
 
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.text.Layout;
 import android.transition.TransitionManager;
@@ -12,13 +14,15 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuoteListAdapter.FavouriteQuoteViewHolder> {
+public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuoteListAdapter.FavouriteQuoteViewHolder>  {
 
     public List<FavouriteQuoteListItem> listItems;
 
     public int activeFav;
     int mExpandedPosition = -1;
-    ViewGroup recyclerView;
+    View recyclerView;
+
+
 
     public FavouriteQuoteListAdapter(List <FavouriteQuoteListItem> listItems) {
         this.listItems = listItems;
@@ -35,7 +39,7 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
 
 
     @Override
-    public void onBindViewHolder(FavouriteQuoteViewHolder holder, int position) {
+    public void onBindViewHolder(FavouriteQuoteViewHolder holder, int position)  {
         FavouriteQuoteListItem listItem = listItems.get(position);
         holder.bind(listItem);
 
@@ -51,6 +55,8 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
                 activeFav = position;
                 Log.i("Active Fav", Integer.toString(activeFav));
                 notifyDataSetChanged();
+
+                //make the view scroll to the expanded item
             }
         });
     }
@@ -86,7 +92,9 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
         return listItems.size();
     }
 
-    public class FavouriteQuoteViewHolder extends RecyclerView.ViewHolder {
+
+
+    public class FavouriteQuoteViewHolder extends RecyclerView.ViewHolder  {
 
         private TextView textViewQuote;
         private View expandConstraint;

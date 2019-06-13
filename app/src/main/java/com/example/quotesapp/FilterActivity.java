@@ -25,8 +25,6 @@ public class FilterActivity extends AppCompatActivity {
     ArrayList<String> filters = new ArrayList<>();
     public ArrayList<String> enabledFilters = new ArrayList<>();
     SQLiteDatabase sqLiteDatabase;
-    boolean defaultModeBool = false;
-    boolean filtersChanged = false;
 
 
     @Override
@@ -51,8 +49,6 @@ public class FilterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter);
-
-        filtersChanged = false;
 
         Log.i("On FilterActivity...", "HI!");
 
@@ -87,13 +83,6 @@ public class FilterActivity extends AppCompatActivity {
                 CheckedTextView checkedTextView = (CheckedTextView) view;
 
                 if (checkedTextView.isChecked()) {
-                    if (defaultModeBool) {
-
-                        try {
-                            sqLiteDatabase.execSQL("DELETE FROM filterLibrary");
-                        } catch (Exception e) {e.printStackTrace();}
-
-                    } else {}
                     Log.i("Item Checked", filters.get(i));
                     // Add entry to filters list
                     enabledFilters.add(filters.get(i));
@@ -121,8 +110,6 @@ public class FilterActivity extends AppCompatActivity {
                 }
                 Log.i("Filters List", filters.toString());
                 Log.i("Enabled Filters", enabledFilters.toString());
-
-                defaultMode();
 
 
                 // confirm that the items are being correctly deleted and that no spare data is in the table
@@ -193,7 +180,7 @@ public class FilterActivity extends AppCompatActivity {
 
     }
 
-
+/*
     // Method to check if all filters are off = default mode
 
     public void defaultMode () {
@@ -224,7 +211,7 @@ public class FilterActivity extends AppCompatActivity {
             Log.i("DEFAULT MODE", "OFF");
         }
 
-    }
+    }*/
 
     private int getIdFromName (String name) {
         return getResources().getIdentifier(name, "id", getPackageName());

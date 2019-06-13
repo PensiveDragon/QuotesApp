@@ -36,7 +36,7 @@ public class FavouritesActivity extends AppCompatActivity {
     public void maximiseButtonClicked (View view) {
 
         // find a way of pulling the quote ID from the recyclerView to start this process off
-        Log.i("Button Clicked", "Maximise Button Clicked! ID: ");
+        Log.i("Button Clicked", "Maximise Button Clicked! ID: " + FavouriteQuoteListItem.class);
 
         Toast.makeText(this, "This is the maximise button!", Toast.LENGTH_SHORT).show();
 
