@@ -17,15 +17,17 @@ import java.util.List;
 public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuoteListAdapter.FavouriteQuoteViewHolder>  {
 
     public List<FavouriteQuoteListItem> listItems;
+    /*private OnFavouriteListener mOnFavouriteListener;*/
+    private int activeFav;
 
-    public int activeFav;
     int mExpandedPosition = -1;
-    View recyclerView;
+
+    RecyclerView recyclerView;
 
 
-
-    public FavouriteQuoteListAdapter(List <FavouriteQuoteListItem> listItems) {
+    public FavouriteQuoteListAdapter(List <FavouriteQuoteListItem> listItems/*, OnFavouriteListener onFavouriteListener*/) {
         this.listItems = listItems;
+        /*this.mOnFavouriteListener = onFavouriteListener;*/
     }
 
     @Override
@@ -34,7 +36,7 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.favourite_quote_list_item, parent, false);
-        return new FavouriteQuoteViewHolder(view);
+        return new FavouriteQuoteViewHolder(view/*, mOnFavouriteListener*/);
     }
 
 
@@ -42,6 +44,7 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
     public void onBindViewHolder(FavouriteQuoteViewHolder holder, int position)  {
         FavouriteQuoteListItem listItem = listItems.get(position);
         holder.bind(listItem);
+
 
         final boolean isExpanded = position == mExpandedPosition;
         holder.expandConstraint.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
@@ -52,14 +55,17 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
             public void onClick(View v) {
                 mExpandedPosition = isExpanded ? -1 : position;
                 //TransitionManager.beginDelayedTransition(recyclerView);   - Can't make this damn thing work correctly!!
+
                 activeFav = position;
                 Log.i("Active Fav", Integer.toString(activeFav));
                 notifyDataSetChanged();
 
                 //make the view scroll to the expanded item
+
             }
         });
     }
+
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
@@ -93,18 +99,24 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
     }
 
 
+    public int getActiveFav() {
+        return activeFav;
+    }
 
-    public class FavouriteQuoteViewHolder extends RecyclerView.ViewHolder  {
+
+    public class FavouriteQuoteViewHolder extends RecyclerView.ViewHolder/* implements View.OnClickListener*/ {
 
         private TextView textViewQuote;
         private View expandConstraint;
+        /*OnFavouriteListener onFavouriteListener;*/
 
-        public FavouriteQuoteViewHolder(View itemView) {
+        public FavouriteQuoteViewHolder(View itemView /*, OnFavouriteListener onFavouriteListener*/) {
             super(itemView);
 
             textViewQuote = itemView.findViewById(R.id.textViewQuote);
             expandConstraint = itemView.findViewById(R.id.expandConstraint);
             recyclerView = itemView.findViewById(R.id.recyclerView);
+           /*this.onFavouriteListener = onFavouriteListener;*/
         }
 
         private void bind(FavouriteQuoteListItem listItem){
@@ -112,6 +124,18 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
             expandConstraint.setVisibility(expanded ? View.VISIBLE : View.GONE);
 
             textViewQuote.setText(listItem.getQuote());
+
+            /*itemView.setOnClickListener(this);*/
         }
-    }
+/*
+        @Override
+        public void onClick(View view) {
+            onFavouriteListener.onFavouriteClick(getAdapterPosition());
+
+        }*/
+    }/*
+
+    public interface OnFavouriteListener {
+        void onFavouriteClick(int position);
+    }*/
 }

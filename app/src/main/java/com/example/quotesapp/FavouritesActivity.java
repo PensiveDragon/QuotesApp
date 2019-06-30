@@ -18,15 +18,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.lang.reflect.Method;
 
-public class FavouritesActivity extends AppCompatActivity {
+public class FavouritesActivity extends AppCompatActivity /*implements FavouriteQuoteListAdapter.OnFavouriteListener*/ {
 
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
+    public RecyclerView rvFavourites;
+    RecyclerView.Adapter adapter;
     private List<FavouriteQuoteListItem> listItems;
     TextView textView;
     ImageView imageView;
     SQLiteDatabase sqLiteDatabase;
+
+
 
     //* Get favourites page to automatically fill in list from SQLite search for favourite tagged quotes
 
@@ -35,8 +38,9 @@ public class FavouritesActivity extends AppCompatActivity {
     // When expanded out show button to maximise quote
     public void maximiseButtonClicked (View view) {
 
+
         // find a way of pulling the quote ID from the recyclerView to start this process off
-        Log.i("Button Clicked", "Maximise Button Clicked! ID: " + FavouriteQuoteListItem.class);
+        Log.i("Button Clicked", "Maximise Button Clicked! ID: ");
 
         Toast.makeText(this, "This is the maximise button!", Toast.LENGTH_SHORT).show();
 
@@ -79,9 +83,9 @@ public class FavouritesActivity extends AppCompatActivity {
 
         imageView = findViewById(R.id.imageView);
         textView = findViewById(R.id.textView);
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        rvFavourites = findViewById(R.id.recyclerView);
+        rvFavourites.setHasFixedSize(true);
+        rvFavourites.setLayoutManager(new LinearLayoutManager(this));
 
         listItems = new ArrayList<>();
 
@@ -133,8 +137,8 @@ public class FavouritesActivity extends AppCompatActivity {
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, quoteData,android.R.layout.simple_list_item_2 , new String[] {"quote", "author"}, new int[] {android.R.id.text1, android.R.id.text2});
         listView.setAdapter(simpleAdapter);
 */
-        adapter = new FavouriteQuoteListAdapter(listItems);
-        recyclerView.setAdapter(adapter);
+        adapter = new FavouriteQuoteListAdapter(listItems/*, this*/);
+        rvFavourites.setAdapter(adapter);
 
         Log.i("Find Favourites", "Finished");
 /*
@@ -149,4 +153,11 @@ public class FavouritesActivity extends AppCompatActivity {
         listView.setAdapter(simpleAdapter);
         */
     }
+/*
+    @Override
+    public void onFavouriteClick(int position) {
+        // Stuff happens here
+        listItems.get(position);
+        Log.i("Clicked", "Woo. Position " + position);
+    }*/
 }
