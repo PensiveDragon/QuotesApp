@@ -133,7 +133,7 @@ public class FilterActivity extends AppCompatActivity {
         });
 
 
-        // Work out how to have filters naturally appear in program - pre-programmed or discovered from quoteLibrary?
+        //# Work out how to have filters naturally appear in program - pre-programmed or discovered from quoteLibrary?
 
         filters.add("categoryOne");
         filters.add("categoryTwo");
@@ -145,9 +145,6 @@ public class FilterActivity extends AppCompatActivity {
         filters.add("categoryEight");
         filters.add("categoryNine");
         filters.add("categoryTen");
-
-
-
 
         // method that updates the checklist from the saved filters in the library on activation
 
@@ -179,39 +176,6 @@ public class FilterActivity extends AppCompatActivity {
         }
 
     }
-
-/*
-    // Method to check if all filters are off = default mode
-
-    public void defaultMode () {
-
-        if (enabledFilters.size() == 0) {
-            defaultModeBool = true;
-            Log.i("DEFAULT MODE", "ON");
-
-            for (int i = 0; i < filters.size(); i++) {
-
-                String addFilter = "INSERT INTO filterLibrary (filterName) VALUES ('" + filters.get(i) + "')";
-                try {
-                    sqLiteDatabase.execSQL(addFilter);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // Code for visually altering the listView so that it looks like a special effect is in place
-
-
-
-
-            // Toast to state default mode is enabled? Maybe a permanent message?
-
-        } else {
-            defaultModeBool = false;
-            Log.i("DEFAULT MODE", "OFF");
-        }
-
-    }*/
 
     private int getIdFromName (String name) {
         return getResources().getIdentifier(name, "id", getPackageName());

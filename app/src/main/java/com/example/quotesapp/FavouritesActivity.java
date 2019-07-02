@@ -9,18 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.lang.reflect.Method;
 
-public class FavouritesActivity extends AppCompatActivity /*implements FavouriteQuoteListAdapter.OnFavouriteListener*/ {
+public class FavouritesActivity extends AppCompatActivity {
 
     public RecyclerView rvFavourites;
     RecyclerView.Adapter adapter;
@@ -55,25 +50,6 @@ public class FavouritesActivity extends AppCompatActivity /*implements Favourite
         Toast.makeText(this, "This is the delete button!", Toast.LENGTH_SHORT).show();
 
         sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
-/*
-        try {
-            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary WHERE id = " + FavouriteQuoteListItem.getId(quoteNo), null);
-            c.moveToFirst();
-            //Log.i("Favourite Button", c.getString(favouriteIndex));
-            if (c.getInt(favouriteIndex) == 0) {
-                favouriteButton.setBackgroundResource(R.drawable.simple_red_heart_small);
-                sqLiteDatabase.execSQL("UPDATE quoteLibrary SET favourite = 1 WHERE id = " + selectedQuoteIds.get(quoteNo));
-                Log.i("Favourited", selectedQuoteIds.get(quoteNo).toString());
-            } else {
-                favouriteButton.setBackgroundResource(R.drawable.simple_hollow_heart_small);
-                sqLiteDatabase.execSQL("UPDATE quoteLibrary SET favourite = 0 WHERE id = " + selectedQuoteIds.get(quoteNo));
-                Log.i("Unfavourited", selectedQuoteIds.get(quoteNo).toString());
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-*/
     }
 
     @Override
@@ -87,18 +63,11 @@ public class FavouritesActivity extends AppCompatActivity /*implements Favourite
         rvFavourites.setHasFixedSize(true);
         rvFavourites.setLayoutManager(new LinearLayoutManager(this));
 
-        listItems = new ArrayList<>();
-
-//        ListView listView = findViewById(R.id.listView);
-
-//        List<Map<String,String>> quoteData = new ArrayList<>();
+        listItems = new ArrayList<FavouriteQuoteListItem>();
 
         try {
 
             SQLiteDatabase sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
-
-            // Do I need the below line here?
-//            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
 
             Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary WHERE favourite = 1", null);
 
@@ -116,11 +85,7 @@ public class FavouritesActivity extends AppCompatActivity /*implements Favourite
                 textView.setVisibility(View.INVISIBLE);
                 do {
                     Log.i("Favourite Quotes", "Quote ID: " + c.getString(idIndex) + ". " + c.getString(quoteIndex) + " - " + c.getString(authorIndex) + ". [" + c.getString(categoriesIndex) + "]");
-/*                    Map<String, String> quoteInfo = new HashMap<>();
-                    quoteInfo.put("quote", c.getString(quoteIndex));
-                    quoteInfo.put("author", c.getString(authorIndex));
-                    quoteData.add(quoteInfo);
-*/
+
                     FavouriteQuoteListItem listItem = new FavouriteQuoteListItem(c.getString(quoteIndex) + "\n - " + c.getString(authorIndex), c.getInt(idIndex));
 
                     listItems.add(listItem);
@@ -133,31 +98,9 @@ public class FavouritesActivity extends AppCompatActivity /*implements Favourite
             }
 
         } catch (Exception e) {e.printStackTrace();}
-/*
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this, quoteData,android.R.layout.simple_list_item_2 , new String[] {"quote", "author"}, new int[] {android.R.id.text1, android.R.id.text2});
-        listView.setAdapter(simpleAdapter);
-*/
-        adapter = new FavouriteQuoteListAdapter(listItems/*, this*/);
+        adapter = new FavouriteQuoteListAdapter(listItems);
         rvFavourites.setAdapter(adapter);
 
         Log.i("Find Favourites", "Finished");
-/*
-        for (int i = 1; i <= 5; i++) {
-            Map<String, String> quoteInfo = new HashMap<>();
-            quoteInfo.put("quote", "Quote Content " + i);
-            quoteInfo.put("author", "Author " + i);
-            quoteData.add(quoteInfo);
-        }
-
-        SimpleAdapter simpleAdapter = new SimpleAdapter(this, quoteData,android.R.layout.simple_list_item_2 , new String[] {"quote", "author"}, new int[] {android.R.id.text1, android.R.id.text2});
-        listView.setAdapter(simpleAdapter);
-        */
     }
-/*
-    @Override
-    public void onFavouriteClick(int position) {
-        // Stuff happens here
-        listItems.get(position);
-        Log.i("Clicked", "Woo. Position " + position);
-    }*/
 }

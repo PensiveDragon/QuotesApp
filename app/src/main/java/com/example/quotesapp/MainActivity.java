@@ -36,6 +36,208 @@ public class MainActivity extends AppCompatActivity {
 
     String searchString;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        quoteTextView = findViewById(R.id.quoteTextView);
+        favouriteButton = findViewById(R.id.favouriteButton);
+        counterTextView = findViewById(R.id.counterTextView);
+
+        // Method that checks if the complete database of quotes is loaded, and loads any missing ones.
+        checkDatabase();
+
+        // method that checks that there are some enabled filters.
+        checkFilters();
+
+        // method that makes the search string from the filters list.
+        generateSearchString();
+
+        // method that selects the 5 quotes to be displayed.
+        chooseQuote();
+
+        ConstraintLayout background = findViewById(R.id.background);
+
+        background.setOnTouchListener(new OnSwipeTouchListener(this) {
+            @Override
+            public void onSwipeLeft() {
+                Log.i("INFO", "onSwipeLeft");
+                if (quoteNo == (max - 1)) {
+                    quoteNo = 0;
+                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
+                    Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
+                } else {
+                    quoteNo++;
+                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
+                    Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
+                }
+                checkFavourite();
+                updateTextView();
+            }
+
+            @Override
+            public void onSwipeRight() {
+                Log.i("INFO", "onSwipeRight");
+                if (quoteNo == 0) {
+                    quoteNo = (max - 1);
+                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
+                } else {
+                    quoteNo--;
+                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
+                }
+                checkFavourite();
+                updateTextView();
+            }
+        });
+    }
+
+    public void checkDatabase () {
+        try {
+            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
+
+//            sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
+
+            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
+
+            Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM quoteLibrary", null);
+
+            c.moveToFirst();
+            Log.i("Database Count", Integer.toString(c.getInt(0)));
+
+            List<String> quoteMasterArray = new ArrayList();
+
+            quoteMasterArray.add("'quote one', 'author one', 'categoryOne, categoryTwo', 0");
+            quoteMasterArray.add("'quote two', 'author two', 'categoryOne, categoryThree', 0");
+            quoteMasterArray.add("'quote three', 'author three', 'categoryTwo, categoryThree, categoryFour', 0");
+            quoteMasterArray.add("'quote four', 'author one', 'categoryOne, categoryFour', 0");
+            quoteMasterArray.add("'quote five', 'author four', 'categoryOne, categoryFour', 0");
+            quoteMasterArray.add("'quote six', 'author four', 'categoryOne', 0");
+            quoteMasterArray.add("'quote seven', 'author five', 'categoryFive', 0");
+            quoteMasterArray.add("'quote eight is a really long quote to help test how well it fits into the display on the app as it could get quite excessive if it goes on too long', 'author six sir reginald de waltzy hammersmith who has too many titles for his own good', 'categoryFive', 0");
+            quoteMasterArray.add("'quote nine tests the database rebuild feature', 'author six', 'categorySix, categoryOne, categoryFour', 0");
+            quoteMasterArray.add("'quote ten tests the database update feature', 'author seven', 'categorySix, categoryOne, categoryFour, categoryThree', 0");
+
+            Log.i("MasterArray Count", Integer.toString(quoteMasterArray.size()));
+
+            // METHOD UPDATES NEW ENTRIES TO DATABASE
+            if (c.getInt(0) == quoteMasterArray.size()) {
+                //Database looks up to date
+                Log.i("Database Check", "Database appears up to date.");
+            } else {
+                Log.i("Database Check", "Database is not up to date, updating...");
+
+                String updateString;
+                for (int i=c.getInt(0); i < quoteMasterArray.size(); i++) {
+                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ("+ quoteMasterArray.get(i) +")";
+                    sqLiteDatabase.execSQL(updateString);
+                    Log.i("Database Update", "Adding: " + quoteMasterArray.get(i));
+                }
+                Log.i("Database Check", "Database is updated");
+            }
+
+            /* // METHOD REBUILDS ENTIRE DATABASE
+            if (c.getInt(0) == quoteMasterArray.size()) {
+                //Database looks up to date
+                Log.i("Database Check", "Database appears up to date.");
+            } else {
+                Log.i("Database Check", "Database is not up to date, rebuilding...");
+                sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
+                sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
+                String updateString;
+                for (int i=0; i < quoteMasterArray.size(); i++) {
+                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ("+ quoteMasterArray.get(i) +")";
+                    sqLiteDatabase.execSQL(updateString);
+                    Log.i("Database Update", "Adding: " + quoteMasterArray.get(i));
+                }
+                Log.i("Database Check", "Database is updated");
+            }
+            */
+
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void checkFilters () {
+
+        try {
+            Log.i("Filter Check", "Commencing Check");
+
+            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
+
+            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR)");
+
+            Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM filterLibrary", null);
+
+            if (c != null) {
+                c.moveToFirst();
+                if (c.getInt(0) == 0) {
+                    Log.i("Filter Check Result", "No Filters Found, applying defaults");
+
+                    Toast.makeText(this, "No enabled filters found.\nEnabling default filters...", Toast.LENGTH_SHORT).show();
+
+                    // Add default filters to the app
+
+                    filters.add("categoryOne");
+                    filters.add("categoryTwo");
+                    filters.add("categoryThree");
+                    filters.add("categoryFour");
+                    filters.add("categoryFive");
+                    filters.add("categorySix");
+                    filters.add("categorySeven");
+                    filters.add("categoryEight");
+                    filters.add("categoryNine");
+                    filters.add("categoryTen");
+
+                } else {
+                    Log.i("Filter Check Result", "Filters Found");
+                }
+                c.close();
+            }
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void generateSearchString () {
+
+        ArrayList<String> enabledFilters = new ArrayList<>();
+        searchString = "SELECT * FROM quoteLibrary WHERE categories LIKE ";
+
+        try {
+
+            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
+
+            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR)");
+
+            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM filterLibrary", null);
+
+            int filterIndex = c.getColumnIndex("filterName");
+
+
+            c.moveToFirst();
+            if (c != null && c.getCount() > 0) {
+                do {
+                    Log.i("Filter Memory", c.getString(filterIndex));
+                    enabledFilters.add(c.getString(filterIndex));
+                } while (c.moveToNext());
+                c.close();
+            } else {
+                Log.i("Filter Memory", "None present, using defaults");
+                enabledFilters.addAll(filters);
+            }
+        } catch (Exception e) {e.printStackTrace();}
+
+        for (String filterName : enabledFilters) {
+            if (enabledFilters.indexOf(filterName) == 0) {
+                searchString = searchString + "('%" + filterName + "%')";
+            } else if (enabledFilters.indexOf(filterName) == enabledFilters.size()) {
+                searchString = searchString + " OR categories LIKE ('%" + filterName + "%')";
+            } else {
+                searchString = searchString + " OR categories LIKE ('%" + filterName + "%')";
+            }
+        }
+        Log.i("SearchString Builder", "Currently reads: " + searchString);
+
+    }
+
     public void chooseQuote () {
 
         try {
@@ -109,8 +311,6 @@ public class MainActivity extends AppCompatActivity {
             Log.i("ID List Done", "Chosen: " + selectedQuoteIds.toString());
 
 
-
-
             // List all quotes in Log & create Quote Content
 
             i = 0;
@@ -151,6 +351,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void checkFavourite () {
+
+        try {
+            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary WHERE id = " + selectedQuoteIds.get(quoteNo), null);
+            c.moveToFirst();
+            Log.i("Favourite Check","ID: " + selectedQuoteIds.get(quoteNo) + " Fav State: " + c.getString(favouriteIndex));
+            if (c.getInt(favouriteIndex) != 0) {
+                favouriteButton.setBackgroundResource(R.drawable.simple_red_heart_small);
+            } else {
+                favouriteButton.setBackgroundResource(R.drawable.simple_hollow_heart_small);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void updateTextView () {
 
         counterString = (quoteNo + 1) + " / " + (max);
@@ -174,22 +390,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Unfavourited", selectedQuoteIds.get(quoteNo).toString());
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void checkFavourite () {
-
-        try {
-            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary WHERE id = " + selectedQuoteIds.get(quoteNo), null);
-            c.moveToFirst();
-            Log.i("Favourite Check","ID: " + selectedQuoteIds.get(quoteNo) + " Fav State: " + c.getString(favouriteIndex));
-            if (c.getInt(favouriteIndex) != 0) {
-                favouriteButton.setBackgroundResource(R.drawable.simple_red_heart_small);
-            } else {
-                favouriteButton.setBackgroundResource(R.drawable.simple_hollow_heart_small);
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -223,220 +423,4 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void generateSearchString () {
-
-        ArrayList<String> enabledFilters = new ArrayList<>();
-        searchString = "SELECT * FROM quoteLibrary WHERE categories LIKE ";
-
-        try {
-
-            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
-
-            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR)");
-
-            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM filterLibrary", null);
-
-            int filterIndex = c.getColumnIndex("filterName");
-
-
-            c.moveToFirst();
-            if (c != null && c.getCount() > 0) {
-                do {
-                    Log.i("Filter Memory", c.getString(filterIndex));
-                    enabledFilters.add(c.getString(filterIndex));
-                } while (c.moveToNext());
-                c.close();
-            } else {
-                Log.i("Filter Memory", "None present, using defaults");
-                enabledFilters.addAll(filters);
-            }
-        } catch (Exception e) {e.printStackTrace();}
-
-        for (String filterName : enabledFilters) {
-            if (enabledFilters.indexOf(filterName) == 0) {
-                searchString = searchString + "('%" + filterName + "%')";
-            } else if (enabledFilters.indexOf(filterName) == enabledFilters.size()) {
-                searchString = searchString + " OR categories LIKE ('%" + filterName + "%')";
-            } else {
-                searchString = searchString + " OR categories LIKE ('%" + filterName + "%')";
-            }
-        }
-        Log.i("SearchString Builder", "Currently reads: " + searchString);
-
-    }
-
-    public void checkFilters () {
-
-        try {
-            Log.i("Filter Check", "Commencing Check");
-
-            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
-
-            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR)");
-
-            Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM filterLibrary", null);
-
-            if (c != null) {
-                c.moveToFirst();
-                if (c.getInt(0) == 0) {
-                    Log.i("Filter Check Result", "No Filters Found");
-                    Log.i("Filter Check Result", "No Filters Found, applying defaults");
-
-                    Toast.makeText(this, "No enabled filters found.\nEnabling default filters...", Toast.LENGTH_SHORT).show();
-
-                    // Add default filters to the app
-
-                    //ArrayList<String> filters = new ArrayList<>();
-
-                    filters.add("categoryOne");
-                    filters.add("categoryTwo");
-                    filters.add("categoryThree");
-                    filters.add("categoryFour");
-                    filters.add("categoryFive");
-                    filters.add("categorySix");
-                    filters.add("categorySeven");
-                    filters.add("categoryEight");
-                    filters.add("categoryNine");
-                    filters.add("categoryTen");
-/*
-                    for (int i = 0; i < filters.size(); i++) {
-
-                        String addFilter = "INSERT INTO filterLibrary (filterName) VALUES ('" + filters.get(i) + "')";
-                        try {
-                            sqLiteDatabase.execSQL(addFilter);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-*/
-                } else {
-                    Log.i("Filter Check Result", "Filters Found");
-                }
-                c.close();
-            }
-        } catch (Exception e) {e.printStackTrace();}
-    }
-
-    public void checkDatabase () {
-        try {
-            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
-
-//            sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
-
-            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
-
-            Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM quoteLibrary", null);
-
-            c.moveToFirst();
-            Log.i("Database Count", Integer.toString(c.getInt(0)));
-
-            List<String> quoteMasterArray = new ArrayList();
-
-            quoteMasterArray.add("'quote one', 'author one', 'categoryOne, categoryTwo', 0");
-            quoteMasterArray.add("'quote two', 'author two', 'categoryOne, categoryThree', 0");
-            quoteMasterArray.add("'quote three', 'author three', 'categoryTwo, categoryThree, categoryFour', 0");
-            quoteMasterArray.add("'quote four', 'author one', 'categoryOne, categoryFour', 0");
-            quoteMasterArray.add("'quote five', 'author four', 'categoryOne, categoryFour', 0");
-            quoteMasterArray.add("'quote six', 'author four', 'categoryOne', 0");
-            quoteMasterArray.add("'quote seven', 'author five', 'categoryFive', 0");
-            quoteMasterArray.add("'quote eight is a really long quote to help test how well it fits into the display on the app as it could get quite excessive if it goes on too long', 'author six sir reginald de waltzy hammersmith who has too many titles for his own good', 'categoryFive', 0");
-            quoteMasterArray.add("'quote nine tests the database rebuild feature', 'author six', 'categorySix, categoryOne, categoryFour', 0");
-            quoteMasterArray.add("'quote ten tests the database update feature', 'author seven', 'categorySix, categoryOne, categoryFour, categoryThree', 0");
-
-            Log.i("MasterArray Count", Integer.toString(quoteMasterArray.size()));
-
-
-            if (c.getInt(0) == quoteMasterArray.size()) {
-                //Database looks up to date
-                Log.i("Database Check", "Database appears up to date.");
-            } else {
-                Log.i("Database Check", "Database is not up to date, updating...");
-
-                String updateString;
-                for (int i=c.getInt(0); i < quoteMasterArray.size(); i++) {
-                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ("+ quoteMasterArray.get(i) +")";
-                    sqLiteDatabase.execSQL(updateString);
-                    Log.i("Database Update", "Adding: " + quoteMasterArray.get(i));
-                }
-                Log.i("Database Check", "Database is updated");
-            }
-
-            /* // METHOD REBUILDS ENTIRE DATABASE
-            if (c.getInt(0) == quoteMasterArray.size()) {
-                //Database looks up to date
-                Log.i("Database Check", "Database appears up to date.");
-            } else {
-                Log.i("Database Check", "Database is not up to date, rebuilding...");
-                sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
-                sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
-                String updateString;
-                for (int i=0; i < quoteMasterArray.size(); i++) {
-                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ("+ quoteMasterArray.get(i) +")";
-                    sqLiteDatabase.execSQL(updateString);
-                    Log.i("Database Update", "Adding: " + quoteMasterArray.get(i));
-                }
-                Log.i("Database Check", "Database is updated");
-            }
-            */
-
-        } catch (Exception e) {e.printStackTrace();}
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        quoteTextView = findViewById(R.id.quoteTextView);
-        favouriteButton = findViewById(R.id.favouriteButton);
-        counterTextView = findViewById(R.id.counterTextView);
-
-        // Method that checks if the complete database of quotes is loaded, and loads any missing ones.
-        checkDatabase();
-
-        // method that checks that there are some enabled filters.
-        checkFilters();
-
-        // method that makes the search string from the filters list.
-        generateSearchString();
-
-        // method that selects the 5 quotes to be displayed.
-        chooseQuote();
-
-        ConstraintLayout background = findViewById(R.id.background);
-
-        background.setOnTouchListener(new OnSwipeTouchListener(this) {
-            @Override
-            public void onSwipeLeft() {
-                Log.i("INFO", "onSwipeLeft");
-                if (quoteNo == (max - 1)) {
-                    quoteNo = 0;
-                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
-                    Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
-                } else {
-                    quoteNo++;
-                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
-                    Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
-                }
-                checkFavourite();
-                updateTextView();
-            }
-
-            @Override
-            public void onSwipeRight() {
-                Log.i("INFO", "onSwipeRight");
-                if (quoteNo == 0) {
-                    quoteNo = (max - 1);
-                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
-                } else {
-                    quoteNo--;
-                    quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
-                }
-                checkFavourite();
-                updateTextView();
-            }
-        });
-    }
 }
-
-// Handle loading the app with no filters enabled - Sort out the persistence over multiple sessions.

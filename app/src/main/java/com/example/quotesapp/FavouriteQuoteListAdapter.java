@@ -1,11 +1,6 @@
 package com.example.quotesapp;
 
-import android.content.Context;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
-import android.text.Layout;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +12,6 @@ import java.util.List;
 public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuoteListAdapter.FavouriteQuoteViewHolder>  {
 
     public List<FavouriteQuoteListItem> listItems;
-    /*private OnFavouriteListener mOnFavouriteListener;*/
     private int activeFav;
 
     int mExpandedPosition = -1;
@@ -25,9 +19,8 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
     RecyclerView recyclerView;
 
 
-    public FavouriteQuoteListAdapter(List <FavouriteQuoteListItem> listItems/*, OnFavouriteListener onFavouriteListener*/) {
+    public FavouriteQuoteListAdapter(List <FavouriteQuoteListItem> listItems) {
         this.listItems = listItems;
-        /*this.mOnFavouriteListener = onFavouriteListener;*/
     }
 
     @Override
@@ -36,7 +29,7 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(R.layout.favourite_quote_list_item, parent, false);
-        return new FavouriteQuoteViewHolder(view/*, mOnFavouriteListener*/);
+        return new FavouriteQuoteViewHolder(view);
     }
 
 
@@ -91,32 +84,22 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
     }
 */
 
-
-
     @Override
     public int getItemCount() {
         return listItems.size();
     }
 
-
-    public int getActiveFav() {
-        return activeFav;
-    }
-
-
-    public class FavouriteQuoteViewHolder extends RecyclerView.ViewHolder/* implements View.OnClickListener*/ {
+    public class FavouriteQuoteViewHolder extends RecyclerView.ViewHolder {
 
         private TextView textViewQuote;
         private View expandConstraint;
-        /*OnFavouriteListener onFavouriteListener;*/
 
-        public FavouriteQuoteViewHolder(View itemView /*, OnFavouriteListener onFavouriteListener*/) {
+        public FavouriteQuoteViewHolder(View itemView) {
             super(itemView);
 
             textViewQuote = itemView.findViewById(R.id.textViewQuote);
             expandConstraint = itemView.findViewById(R.id.expandConstraint);
             recyclerView = itemView.findViewById(R.id.recyclerView);
-           /*this.onFavouriteListener = onFavouriteListener;*/
         }
 
         private void bind(FavouriteQuoteListItem listItem){
@@ -124,18 +107,7 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
             expandConstraint.setVisibility(expanded ? View.VISIBLE : View.GONE);
 
             textViewQuote.setText(listItem.getQuote());
-
-            /*itemView.setOnClickListener(this);*/
         }
-/*
-        @Override
-        public void onClick(View view) {
-            onFavouriteListener.onFavouriteClick(getAdapterPosition());
 
-        }*/
-    }/*
-
-    public interface OnFavouriteListener {
-        void onFavouriteClick(int position);
-    }*/
+    }
 }
