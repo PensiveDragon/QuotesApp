@@ -376,10 +376,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void favouriteButtonClicked (View view) {
 
+        Log.i("FavouriteButtonClicked", selectedQuoteIds.get(quoteNo).toString());
+
         try {
             Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary WHERE id = " + selectedQuoteIds.get(quoteNo), null);
             c.moveToFirst();
-            //Log.i("Favourite Button", c.getString(favouriteIndex));
+            Log.i("Favourite Button", c.getString(favouriteIndex));
             if (c.getInt(favouriteIndex) == 0) {
                 favouriteButton.setBackgroundResource(R.drawable.simple_red_heart_small);
                 sqLiteDatabase.execSQL("UPDATE quoteLibrary SET favourite = 1 WHERE id = " + selectedQuoteIds.get(quoteNo));
@@ -422,5 +424,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
         }
     }
+
+
 
 }
