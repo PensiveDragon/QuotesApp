@@ -25,6 +25,7 @@ public class FavouritesActivity extends AppCompatActivity {
     FavouriteQuoteListAdapter adapter;
     private List<FavouriteQuoteListItem> listItems;
     TextView textView;
+    TextView refreshButton;
     ImageView imageView;
     SQLiteDatabase sqLiteDatabase;
 
@@ -90,36 +91,39 @@ public class FavouritesActivity extends AppCompatActivity {
             }
             c.close();
 
+            checkRefreshButton();
             Log.i("DeleteList", "Positions: " + adapter.deleteList.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("hasBackPressed", true);
-        finish();
-        super.onBackPressed();
+    public void checkRefreshButton () {
+        Log.i("CheckRefreshButton", "Delete list size: " + adapter.deleteList.size());
+        if (adapter.deleteList.size() > 0) {
+            refreshButton.setEnabled(true);
+            // set text to the number of favourited quotes and note to click to refresh the list
+            refreshButton.setText(listItems.size() + " / 100 (Refresh)");
+        } else {
+            refreshButton.setEnabled(false);
+            // update text to number of favourited quotes
+            refreshButton.setText(listItems.size() + " / 100");
 
+        }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_favourites);
+    public void refreshButtonPressed (View view) {
+        Log.i("RefreshButton", "Button pressed!");
+        Toast.makeText(this, "REFRESH BUTTON PRESSED!", Toast.LENGTH_SHORT).show();
 
-        imageView = findViewById(R.id.imageView);
-        textView = findViewById(R.id.textView);
-        rvFavourites = findViewById(R.id.recyclerView);
-        deleteButton = findViewById(R.id.deleteButton);
-        maximiseButton = findViewById(R.id.maximiseButton);
+        updateUI();
+    }
 
-        rvFavourites.setHasFixedSize(true);
-        rvFavourites.setLayoutManager(new LinearLayoutManager(this));
+    public void updateUI () {
+        Log.i("Update UI", "Updating UI");
 
-        listItems = new ArrayList<FavouriteQuoteListItem>();
+
+        listItems.clear();
 
         try {
 
@@ -157,6 +161,39 @@ public class FavouritesActivity extends AppCompatActivity {
         adapter = new FavouriteQuoteListAdapter(listItems);
         rvFavourites.setAdapter(adapter);
 
+        checkRefreshButton();
         Log.i("Find Favourites", "Finished");
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("hasBackPressed", true);
+        finish();
+        super.onBackPressed();
+
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_favourites);
+
+        Log.i("Favourites Activity", "Initialising Favourites Activity");
+
+        imageView = findViewById(R.id.imageView);
+        textView = findViewById(R.id.textView);
+        rvFavourites = findViewById(R.id.recyclerView);
+        deleteButton = findViewById(R.id.deleteButton);
+        maximiseButton = findViewById(R.id.maximiseButton);
+        refreshButton = findViewById(R.id.refreshButton);
+
+        rvFavourites.setHasFixedSize(true);
+        rvFavourites.setLayoutManager(new LinearLayoutManager(this));
+
+        listItems = new ArrayList<FavouriteQuoteListItem>();
+
+        Log.i("Favourites Activity", "Calling updateUI from onCreate");
+        updateUI();
     }
 }

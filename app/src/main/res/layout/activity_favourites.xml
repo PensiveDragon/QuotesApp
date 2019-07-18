@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".FavouritesActivity">
 
+    <TextView
+        android:id="@+id/refreshButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="2dp"
+        android:gravity="center"
+        android:onClick="refreshButtonPressed"
+        android:padding="4dp"
+        android:text="Status Bar Text Goes Here"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteX="8dp" />
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
@@ -34,9 +48,13 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/refreshButton"
+        tools:layout_editor_absoluteX="8dp">
 
     </android.support.v7.widget.RecyclerView>
+
+
 </android.support.constraint.ConstraintLayout>

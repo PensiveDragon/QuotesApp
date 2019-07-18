@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     List quoteContentArray = new ArrayList();
     List selectedQuoteIds = new ArrayList();
     int favouriteIndex;
+    int favouriteCount;
+    int favouriteLimit = 100;
     public int max;
     public int quoteNo = 0;
     TextView counterTextView;
@@ -50,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
 
         // method that checks that there are some enabled filters.
         checkFilters();
+
+        // method that counts the number of favourites the user currently has stored.
+        countFavourites();
 
         // method that makes the search string from the filters list.
         generateSearchString();
@@ -193,6 +198,24 @@ public class MainActivity extends AppCompatActivity {
                 }
                 c.close();
             }
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void countFavourites () {
+
+        try {
+
+            SQLiteDatabase sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
+
+            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary WHERE favourite = 1", null);
+
+            Log.i("countFavourites", "Starting...");
+
+            c.moveToFirst();
+            favouriteCount = c.getCount();
+            Log.i("countFavourites", "Favourites Count = " + favouriteCount);
+            c.close();
+
         } catch (Exception e) {e.printStackTrace();}
     }
 
@@ -383,15 +406,21 @@ public class MainActivity extends AppCompatActivity {
             c.moveToFirst();
             Log.i("Favourite Button", c.getString(favouriteIndex));
             if (c.getInt(favouriteIndex) == 0) {
-                favouriteButton.setBackgroundResource(R.drawable.simple_red_heart_small);
-                sqLiteDatabase.execSQL("UPDATE quoteLibrary SET favourite = 1 WHERE id = " + selectedQuoteIds.get(quoteNo));
-                Log.i("Favourited", selectedQuoteIds.get(quoteNo).toString());
+                if (favouriteCount < favouriteLimit) {
+                    favouriteButton.setBackgroundResource(R.drawable.simple_red_heart_small);
+                    sqLiteDatabase.execSQL("UPDATE quoteLibrary SET favourite = 1 WHERE id = " + selectedQuoteIds.get(quoteNo));
+                    Log.i("Favourited", selectedQuoteIds.get(quoteNo).toString());
+                    favouriteCount++;
+                } else {
+                    Log.i("FavouriteButtonClicked", "Unable to add, at favourites maximum.");
+                    Toast.makeText(this, "You are at your favourites maximum of " + favouriteLimit + " quotes!", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 favouriteButton.setBackgroundResource(R.drawable.simple_hollow_heart_small);
                 sqLiteDatabase.execSQL("UPDATE quoteLibrary SET favourite = 0 WHERE id = " + selectedQuoteIds.get(quoteNo));
                 Log.i("Unfavourited", selectedQuoteIds.get(quoteNo).toString());
+                favouriteCount--;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -430,6 +459,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("onActivityResult", "Result called!");
         if (requestCode == 1) {
             checkFavourite();
+            countFavourites();
             Log.i("onActivityResult", "Result code = 1!");
         }
         super.onActivityResult(requestCode, resultCode, data);
