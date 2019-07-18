@@ -1,5 +1,7 @@
 package com.example.quotesapp;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
@@ -96,8 +98,9 @@ public class FavouritesActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
-
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("hasBackPressed", true);
+        finish();
         super.onBackPressed();
 
     }

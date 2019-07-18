@@ -413,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.favourites:
                 Log.i("Menu Item", "Favourites selected");
                 Intent intent = new Intent(getApplicationContext(), FavouritesActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
                 return true;
             case R.id.filter:
                 Log.i("Menu Item", "Filter selected");
@@ -425,6 +425,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i("onActivityResult", "Result called!");
+        if (requestCode == 1) {
+            checkFavourite();
+            Log.i("onActivityResult", "Result code = 1!");
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }
