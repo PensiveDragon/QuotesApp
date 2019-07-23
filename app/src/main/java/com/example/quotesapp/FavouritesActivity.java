@@ -37,7 +37,6 @@ public class FavouritesActivity extends AppCompatActivity {
     // When expanded out show button to maximise quote
     public void maximiseButtonClicked (View view) {
 
-
         int position = adapter.getActiveFav();
 
         // find a way of pulling the quote ID from the recyclerView to start this process off
@@ -45,6 +44,9 @@ public class FavouritesActivity extends AppCompatActivity {
 
         Toast.makeText(this, "This is the maximise button!", Toast.LENGTH_SHORT).show();
 
+        Intent intent = new Intent(getApplicationContext(), FavViewerActivity.class);
+        intent.putExtra("id", listItems.get(position).getId());
+        startActivityForResult(intent, 1);
     }
 
     // Button to unfavourite a quote
