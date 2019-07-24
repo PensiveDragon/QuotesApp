@@ -3,15 +3,19 @@ package com.example.quotesapp;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.Image;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +27,10 @@ public class MainActivity extends AppCompatActivity {
 
     TextView quoteTextView;
     Button favouriteButton;
+    Button menuButton;
+    Button favouritesMenuButton;
+    Button filterMenuButton;
+    ViewGroup expandedMenu;
     SQLiteDatabase sqLiteDatabase;
     String quoteContent;
     List quoteContentArray = new ArrayList();
@@ -37,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> filters = new ArrayList<>();
 
     String searchString;
+    boolean menuOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
         quoteTextView = findViewById(R.id.quoteTextView);
         favouriteButton = findViewById(R.id.favouriteButton);
         counterTextView = findViewById(R.id.counterTextView);
+        menuButton = findViewById(R.id.menu_button);
+        favouritesMenuButton = findViewById(R.id.favourites_menu_button);
+        filterMenuButton = findViewById(R.id.filter_menu_button);
+        expandedMenu = findViewById(R.id.menuFrame);
 
         // Method that checks if the complete database of quotes is loaded, and loads any missing ones.
         checkDatabase();
@@ -357,6 +370,9 @@ public class MainActivity extends AppCompatActivity {
 
             quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
             Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
+
+            //quoteTextView.setTextSize(50);
+
             updateTextView();
 
 
@@ -395,6 +411,18 @@ public class MainActivity extends AppCompatActivity {
         counterString = (quoteNo + 1) + " / " + (max);
 
         counterTextView.setText(counterString);
+/*
+        int charCount = quoteTextView.getText().length();
+        Log.i("MainActivity", "Quote character count = " + charCount);
+        if (charCount < 80) {
+            quoteTextView.setTextSize(36);
+        } else if (charCount < 160) {
+            quoteTextView.setTextSize(28);
+        } else if (charCount < 240) {
+            quoteTextView.setTextSize(24);
+        }
+        Log.i("MainActivity", "Updating text size");
+        */
     }
 
     public void favouriteButtonClicked (View view) {
@@ -426,6 +454,58 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void menuButtonClicked (View view) {
+        Log.i("MainActivity", "Menu Button Clicked!");
+
+
+        if (menuOpen) {
+
+            favouritesMenuButton.setVisibility(View.GONE);
+            //favouritesMenuButton.animate().translationXBy(150).setDuration(500);
+            filterMenuButton.setVisibility(View.GONE);
+            //filterMenuButton.animate().translationXBy(300).setDuration(500);
+            menuOpen = false;
+            TransitionManager.beginDelayedTransition(expandedMenu);
+
+        } else {
+
+            favouritesMenuButton.setVisibility(View.VISIBLE);
+            //favouritesMenuButton.animate().translationXBy(-150).setDuration(500);
+            filterMenuButton.setVisibility(View.VISIBLE);
+            //filterMenuButton.animate().translationXBy(-300).setDuration(500);
+            menuOpen = true;
+            TransitionManager.beginDelayedTransition(expandedMenu);
+
+        }
+    }
+
+    public void favouritesMenuButtonClicked (View view) {
+        Log.i("MainActivity", "Favourites Menu Button Clicked!");
+
+        Intent intent = new Intent(getApplicationContext(), FavouritesActivity.class);
+        startActivityForResult(intent, 1);
+
+        favouritesMenuButton.setVisibility(View.GONE);
+        filterMenuButton.setVisibility(View.GONE);
+        menuOpen = false;
+        TransitionManager.beginDelayedTransition(expandedMenu);
+
+    }
+
+    public void filterMenuButtonClicked (View view) {
+        Log.i("MainActivity", "Filter Menu Button Clicked!");
+
+        Intent intent = new Intent(getApplicationContext(), FilterActivity.class);
+        startActivity(intent);
+
+        favouritesMenuButton.setVisibility(View.GONE);
+        filterMenuButton.setVisibility(View.GONE);
+        menuOpen = false;
+        TransitionManager.beginDelayedTransition(expandedMenu);
+    }
+
+
+/*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
@@ -433,7 +513,9 @@ public class MainActivity extends AppCompatActivity {
         menuInflater.inflate(R.menu.main_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
+*/
 
+/*
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
@@ -453,6 +535,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
         }
     }
+*/
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

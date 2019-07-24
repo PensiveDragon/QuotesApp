@@ -7,6 +7,47 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <android.support.v7.widget.LinearLayoutCompat
+        android:id="@+id/menuFrame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/favourites_menu_button"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:onClick="favouritesMenuButtonClicked"
+            android:text="*"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/filter_menu_button"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:onClick="filterMenuButtonClicked"
+            android:text="V"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/menu_button"
+            style="@style/Widget.AppCompat.Button.Small"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:onClick="menuButtonClicked"
+            android:text=":"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
@@ -20,16 +61,17 @@
 
     <TextView
         android:id="@+id/quoteTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="60dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="60dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center_vertical"
         android:padding="20dp"
         android:singleLine="false"
         android:text='"Lovely longer quotes may cause a problem if they are super long, but they still go here..." - The Dev'
         android:textSize="36sp"
+        app:autoSizeMaxTextSize="36sp"
+        app:autoSizeMinTextSize="20sp"
+        app:autoSizeStepGranularity="2sp"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toTopOf="@+id/favouriteButton"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
