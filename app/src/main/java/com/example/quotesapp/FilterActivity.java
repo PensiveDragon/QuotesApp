@@ -134,7 +134,7 @@ public class FilterActivity extends AppCompatActivity {
 
 
         //# Work out how to have filters naturally appear in program - pre-programmed or discovered from quoteLibrary?
-
+/*
         filters.add("categoryOne");
         filters.add("categoryTwo");
         filters.add("categoryThree");
@@ -145,6 +145,17 @@ public class FilterActivity extends AppCompatActivity {
         filters.add("categoryEight");
         filters.add("categoryNine");
         filters.add("categoryTen");
+*/
+        filters.add("Self Improvement");
+        filters.add("Perception");
+        filters.add("Action");
+        filters.add("Motivation");
+        filters.add("Responsibility");
+        filters.add("Optimism");
+        filters.add("Kindness");
+        filters.add("Purpose");
+        filters.add("Self Reliance");
+        filters.add("Persistence");
 
         // method that updates the checklist from the saved filters in the library on activation
 

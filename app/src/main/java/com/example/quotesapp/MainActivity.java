@@ -22,6 +22,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     TextView counterTextView;
     String counterString;
     ArrayList<String> filters = new ArrayList<>();
+    Set generatedCategories = new TreeSet();
 
     String searchString;
     boolean menuOpen = false;
@@ -62,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Method that checks if the complete database of quotes is loaded, and loads any missing ones.
         checkDatabase();
+
+        // Method that generates filters from the categories of loaded quotes. - MAY BE WISE TO DISABLE FOR RELEASE.
+        //generateCategories();
 
         // method that checks that there are some enabled filters.
         checkFilters();
@@ -114,30 +120,25 @@ public class MainActivity extends AppCompatActivity {
         try {
             sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
 
-//            sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
+            sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
 
             sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
 
             Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM quoteLibrary", null);
 
             c.moveToFirst();
-            Log.i("Database Count", Integer.toString(c.getInt(0)));
+            Log.i("Check Database", "Database Count: " + (c.getInt(0)));
 
-            List<String> quoteMasterArray = new ArrayList();
 
-            quoteMasterArray.add("'quote one', 'author one', 'categoryOne, categoryTwo', 0");
-            quoteMasterArray.add("'quote two', 'author two', 'categoryOne, categoryThree', 0");
-            quoteMasterArray.add("'quote three', 'author three', 'categoryTwo, categoryThree, categoryFour', 0");
-            quoteMasterArray.add("'quote four', 'author one', 'categoryOne, categoryFour', 0");
-            quoteMasterArray.add("'quote five', 'author four', 'categoryOne, categoryFour', 0");
-            quoteMasterArray.add("'quote six', 'author four', 'categoryOne', 0");
-            quoteMasterArray.add("'quote seven', 'author five', 'categoryFive', 0");
-            quoteMasterArray.add("'quote eight is a really long quote to help test how well it fits into the display on the app as it could get quite excessive if it goes on too long', 'author six sir reginald de waltzy hammersmith who has too many titles for his own good', 'categoryFive', 0");
-            quoteMasterArray.add("'quote nine tests the database rebuild feature', 'author six', 'categorySix, categoryOne, categoryFour', 0");
-            quoteMasterArray.add("'quote ten tests the database update feature', 'author seven', 'categorySix, categoryOne, categoryFour, categoryThree', 0");
+            // CALLS METHOD FROM QUOTELIBRARY
+            ArrayList<Quote> quoteMasterArray = new ArrayList<>(QuoteLibrary.createLibrary());
 
-            Log.i("MasterArray Count", Integer.toString(quoteMasterArray.size()));
+            Log.i("Check Database" , "MasterArray Count: " + (quoteMasterArray.size()));
 
+            // Example insert line:
+            //"INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ('Quality is not an act, it is a habit.', 'Aristotle', 'Self Improvement, Perception', 0)";
+
+            /*
             // METHOD UPDATES NEW ENTRIES TO DATABASE
             if (c.getInt(0) == quoteMasterArray.size()) {
                 //Database looks up to date
@@ -147,14 +148,35 @@ public class MainActivity extends AppCompatActivity {
 
                 String updateString;
                 for (int i=c.getInt(0); i < quoteMasterArray.size(); i++) {
-                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ("+ quoteMasterArray.get(i) +")";
+
+                    String categoriesAssembly = "";
+
+                    for (int j = 0; j < quoteMasterArray.get(i).getCategories().size(); j++) {
+                        categoriesAssembly += quoteMasterArray.get(i).getCategories().get(j);
+                        if (j < quoteMasterArray.get(i).getCategories().size()-1) {
+                            categoriesAssembly += ", ";
+                        }
+                    }
+
+                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ('"
+                        + quoteMasterArray.get(i).getText() + "', '"
+                        + quoteMasterArray.get(i).getAuthor() + "', '"
+                        + categoriesAssembly + "', "
+                        + quoteMasterArray.get(i).getFavouriteInt() + ")";
+
+                    Log.i("UpdateString", updateString);
+
                     sqLiteDatabase.execSQL(updateString);
-                    Log.i("Database Update", "Adding: " + quoteMasterArray.get(i));
+
+                    Log.i("Database Update", "Adding: " + "'" + quoteMasterArray.get(i).getText() + "', '" + quoteMasterArray.get(i).getAuthor() + "', '" + categoriesAssembly + "', " + quoteMasterArray.get(i).getFavouriteInt() + ")");
                 }
                 Log.i("Database Check", "Database is updated");
             }
+*/
 
-            /* // METHOD REBUILDS ENTIRE DATABASE
+
+
+            // METHOD REBUILDS ENTIRE DATABASE
             if (c.getInt(0) == quoteMasterArray.size()) {
                 //Database looks up to date
                 Log.i("Database Check", "Database appears up to date.");
@@ -163,14 +185,66 @@ public class MainActivity extends AppCompatActivity {
                 sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
                 sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
                 String updateString;
-                for (int i=0; i < quoteMasterArray.size(); i++) {
-                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ("+ quoteMasterArray.get(i) +")";
+                for (int i=c.getInt(0); i < quoteMasterArray.size(); i++) {
+
+                    String categoriesAssembly = "";
+
+                    for (int j = 0; j < quoteMasterArray.get(i).getCategories().size(); j++) {
+                        categoriesAssembly += quoteMasterArray.get(i).getCategories().get(j);
+                        if (j < quoteMasterArray.get(i).getCategories().size()-1) {
+                            categoriesAssembly += ", ";
+                        }
+                    }
+
+                    updateString = "INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ('"
+                            + quoteMasterArray.get(i).getText() + "', '"
+                            + quoteMasterArray.get(i).getAuthor() + "', '"
+                            + categoriesAssembly + "', "
+                            + quoteMasterArray.get(i).getFavouriteInt() + ")";
+
+                    //Log.i("UpdateString", updateString);
+
                     sqLiteDatabase.execSQL(updateString);
-                    Log.i("Database Update", "Adding: " + quoteMasterArray.get(i));
+
+                    Log.i("Database Update", "Adding: " + "'" + quoteMasterArray.get(i).getText() + "', '" + quoteMasterArray.get(i).getAuthor() + "', '" + categoriesAssembly + "', " + quoteMasterArray.get(i).getFavouriteInt() + ")");
                 }
-                Log.i("Database Check", "Database is updated");
+                Log.i("Database Check", "Database is updated. " + quoteMasterArray.size() + " quotes.");
             }
-            */
+
+
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void generateCategories () {
+
+        try {
+            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
+
+            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
+
+            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary", null);
+
+            int categoriesIndex = c.getColumnIndex("categories");
+            String[] categoryResults;
+
+            generatedCategories = new TreeSet();
+
+            c.moveToFirst();
+            if (c != null && c.getCount() > 0) {
+                do {
+                    Log.i("GenerateCategories", "Categories Found! " + c.getString(categoriesIndex));
+                    categoryResults = c.getString(categoriesIndex).split(", ");
+                    for (int i = 0; i < categoryResults.length; i++) {
+                        String result = categoryResults[i];
+                        generatedCategories.add(result);
+                    }
+                } while (c.moveToNext());
+                c.close();
+                Log.i("GenerateCategories", generatedCategories.toString());
+                filters.addAll(generatedCategories);
+            } else  {
+                Log.i("GenerateCategories", "ERROR: Couldn't generate any categories");
+            }
 
         } catch (Exception e) {e.printStackTrace();}
     }
@@ -181,6 +255,8 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Filter Check", "Commencing Check");
 
             sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
+
+            sqLiteDatabase.execSQL("DROP TABLE filterLibrary");
 
             sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR)");
 
@@ -193,8 +269,9 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(this, "No enabled filters found.\nEnabling default filters...", Toast.LENGTH_SHORT).show();
 
-                    // Add default filters to the app
 
+                    // Add default filters to the app
+/*
                     filters.add("categoryOne");
                     filters.add("categoryTwo");
                     filters.add("categoryThree");
@@ -205,14 +282,29 @@ public class MainActivity extends AppCompatActivity {
                     filters.add("categoryEight");
                     filters.add("categoryNine");
                     filters.add("categoryTen");
+*/
+                    filters.add("Self Improvement");
+                    filters.add("Perception");
+                    filters.add("Action");
+                    filters.add("Motivation");
+                    filters.add("Responsibility");
+                    filters.add("Optimism");
+                    filters.add("Kindness");
+                    filters.add("Purpose");
+                    filters.add("Self Reliance");
+                    filters.add("Persistence");
 
                 } else {
                     Log.i("Filter Check Result", "Filters Found");
                 }
                 c.close();
+
+
             }
         } catch (Exception e) {e.printStackTrace();}
     }
+
+
 
     public void countFavourites () {
 
