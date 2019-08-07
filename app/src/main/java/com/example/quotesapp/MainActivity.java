@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -64,13 +65,13 @@ public class MainActivity extends AppCompatActivity {
         expandedMenu = findViewById(R.id.menuFrame);
 
         // Method that checks if the complete database of quotes is loaded, and loads any missing ones.
-        checkDatabase();
+        checkQuoteDatabase();
 
-        // Method that generates filters from the categories of loaded quotes. - MAY BE WISE TO DISABLE FOR RELEASE.
-        //generateCategories();
+        // Method that checks if the categories have loaded in, if there are none, it will generate them.
+        checkFilterLibrary();
 
         // method that checks that there are some enabled filters.
-        checkFilters();
+        //checkActiveFilters();
 
         // method that counts the number of favourites the user currently has stored.
         countFavourites();
@@ -116,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void checkDatabase () {
+    public void checkQuoteDatabase () {
         try {
             sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
 
-            sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
+            //sqLiteDatabase.execSQL("DROP TABLE quoteLibrary");
 
             sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS quoteLibrary (quote VARCHAR, author VARCHAR, categories VARCHAR, favourite BOOLEAN, id INTEGER PRIMARY KEY)");
 
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
             // Example insert line:
             //"INSERT INTO quoteLibrary (quote, author, categories, favourite) VALUES ('Quality is not an act, it is a habit.', 'Aristotle', 'Self Improvement, Perception', 0)";
 
-            /*
+
             // METHOD UPDATES NEW ENTRIES TO DATABASE
             if (c.getInt(0) == quoteMasterArray.size()) {
                 //Database looks up to date
@@ -172,10 +173,10 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Log.i("Database Check", "Database is updated");
             }
-*/
 
 
 
+/*
             // METHOD REBUILDS ENTIRE DATABASE
             if (c.getInt(0) == quoteMasterArray.size()) {
                 //Database looks up to date
@@ -210,12 +211,44 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Log.i("Database Check", "Database is updated. " + quoteMasterArray.size() + " quotes.");
             }
+*/
 
+        } catch (Exception e) {e.printStackTrace();}
+    }
+
+    public void checkFilterLibrary () {
+        try {
+            sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
+
+            //sqLiteDatabase.execSQL("DROP TABLE filterLibrary");
+
+            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR, active BOOLEAN)");
+
+            Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM filterLibrary", null);
+
+            c.moveToFirst();
+            //Log.i("checkFilterLibrary", "Filter Library Count: " + (c.getInt(0)));
+
+            if (c.getInt(0) == 0) {
+                Log.i("checkFilterLibrary", "Filter Library is empty, generating categories");
+                generateCategories();
+            }
+
+            Iterator<String> itr = generatedCategories.iterator();
+
+            while(itr.hasNext()){
+                sqLiteDatabase.execSQL("INSERT INTO filterLibrary (filterName, active) VALUES ('" + itr.next() + "', 0)");
+            }
+
+            Cursor k = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM filterLibrary", null);
+            k.moveToFirst();
+            Log.i("checkFilterLibrary", "New Filter Library Count: " + (k.getInt(0)));
 
         } catch (Exception e) {e.printStackTrace();}
     }
 
     public void generateCategories () {
+        Log.i("MainActivity", "Generating Categories");
 
         try {
             sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
@@ -232,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             c.moveToFirst();
             if (c != null && c.getCount() > 0) {
                 do {
-                    Log.i("GenerateCategories", "Categories Found! " + c.getString(categoriesIndex));
+                    //Log.i("GenerateCategories", "Categories Found! " + c.getString(categoriesIndex));
                     categoryResults = c.getString(categoriesIndex).split(", ");
                     for (int i = 0; i < categoryResults.length; i++) {
                         String result = categoryResults[i];
@@ -249,18 +282,19 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {e.printStackTrace();}
     }
 
-    public void checkFilters () {
+/*
+    public void checkActiveFilters () {
 
         try {
-            Log.i("Filter Check", "Commencing Check");
+            Log.i("Active Filter Check", "Commencing Check");
 
             sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
 
-            sqLiteDatabase.execSQL("DROP TABLE filterLibrary");
+            //sqLiteDatabase.execSQL("DROP TABLE filterLibrary");
 
-            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR)");
+            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR, active BOOLEAN)");
 
-            Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM filterLibrary", null);
+            Cursor c = sqLiteDatabase.rawQuery("SELECT COUNT (*) FROM filterLibrary WHERE active = 1", null);
 
             if (c != null) {
                 c.moveToFirst();
@@ -269,30 +303,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(this, "No enabled filters found.\nEnabling default filters...", Toast.LENGTH_SHORT).show();
 
-
-                    // Add default filters to the app
-/*
-                    filters.add("categoryOne");
-                    filters.add("categoryTwo");
-                    filters.add("categoryThree");
-                    filters.add("categoryFour");
-                    filters.add("categoryFive");
-                    filters.add("categorySix");
-                    filters.add("categorySeven");
-                    filters.add("categoryEight");
-                    filters.add("categoryNine");
-                    filters.add("categoryTen");
-*/
-                    filters.add("Self Improvement");
-                    filters.add("Perception");
-                    filters.add("Action");
-                    filters.add("Motivation");
-                    filters.add("Responsibility");
-                    filters.add("Optimism");
-                    filters.add("Kindness");
-                    filters.add("Purpose");
-                    filters.add("Self Reliance");
-                    filters.add("Persistence");
+//stuff here?
 
                 } else {
                     Log.i("Filter Check Result", "Filters Found");
@@ -303,8 +314,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {e.printStackTrace();}
     }
-
-
+*/
 
     public void countFavourites () {
 
@@ -333,9 +343,9 @@ public class MainActivity extends AppCompatActivity {
 
             sqLiteDatabase = this.openOrCreateDatabase("QuoteDatabase", MODE_PRIVATE, null);
 
-            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR)");
+            sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS filterLibrary (filterName VARCHAR, active BOOLEAN)");
 
-            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM filterLibrary", null);
+            Cursor c = sqLiteDatabase.rawQuery("SELECT * FROM filterLibrary WHERE active = 1", null);
 
             int filterIndex = c.getColumnIndex("filterName");
 
@@ -343,15 +353,28 @@ public class MainActivity extends AppCompatActivity {
             c.moveToFirst();
             if (c != null && c.getCount() > 0) {
                 do {
-                    Log.i("Filter Memory", c.getString(filterIndex));
+                    //Log.i("Filter Memory", c.getString(filterIndex));
                     enabledFilters.add(c.getString(filterIndex));
                 } while (c.moveToNext());
                 c.close();
+
             } else {
+
                 Log.i("Filter Memory", "None present, using defaults");
-                enabledFilters.addAll(filters);
+                Toast.makeText(this, "No enabled filters found.\nEnabling default filters...", Toast.LENGTH_SHORT).show();
+
+                c = sqLiteDatabase.rawQuery("SELECT * FROM filterLibrary", null);
+                c.moveToFirst();
+
+                do {
+                    //Log.i("Filter Memory", c.getString(filterIndex));
+                    enabledFilters.add(c.getString(filterIndex));
+                } while (c.moveToNext());
+
             }
         } catch (Exception e) {e.printStackTrace();}
+
+        Log.i("generateSearchString", enabledFilters.toString());
 
         for (String filterName : enabledFilters) {
             if (enabledFilters.indexOf(filterName) == 0) {
@@ -390,7 +413,7 @@ public class MainActivity extends AppCompatActivity {
             c.moveToFirst();
             if (c != null) {
                 do {
-                    Log.i("Quote ID", c.getString(idIndex));
+                    //Log.i("Quote ID", c.getString(idIndex));
                     viableQuoteIds.add((c.getInt(idIndex)));
                 } while (c.moveToNext());
                 c.close();
@@ -410,33 +433,33 @@ public class MainActivity extends AppCompatActivity {
                 while (i < max) {
                     Random random = new Random();
                     num = (random.nextInt(viableQuoteIds.size()));
-                    Log.i("Num", Integer.toString(num));
+                    //Log.i("Num", Integer.toString(num));
                     if (!selectedQuoteIds.contains(viableQuoteIds.get(num))) {
                         selectedQuoteIds.add(viableQuoteIds.get(num));
                         i = selectedQuoteIds.size();
-                        Log.i("New Quote ID", viableQuoteIds.get(num) + " added.");
+                        //Log.i("New Quote ID", viableQuoteIds.get(num) + " added.");
                     }
                 }
 
             } else if (viableQuoteIds.size() != 0) {
                 max = viableQuoteIds.size();
-                Log.i("Max No. is", Integer.toString(viableQuoteIds.size()));
+                //Log.i("Max No. is", Integer.toString(viableQuoteIds.size()));
 
                 while (i < max) {
                     Random random = new Random();
                     num = (random.nextInt(viableQuoteIds.size()));
-                    Log.i("Num", Integer.toString(num));
+                    //Log.i("Num", Integer.toString(num));
                     if (!selectedQuoteIds.contains(viableQuoteIds.get(num))) {
                         selectedQuoteIds.add(viableQuoteIds.get(num));
                         i = selectedQuoteIds.size();
-                        Log.i("New Quote ID", viableQuoteIds.get(num) + " added.");
+                        //Log.i("New Quote ID", viableQuoteIds.get(num) + " added.");
                     }
                 }
             } else {
-                Log.i("ERROR", "What the heck, how did we end up with 0!?");
+                Log.i("ERROR chooseQuote", "What the heck, how did we end up with 0!?");
             }
 
-            Log.i("ID List Done", "Chosen: " + selectedQuoteIds.toString());
+            Log.i("chooseQuote", "ID List Done, chosen: " + selectedQuoteIds.toString());
 
 
             // List all quotes in Log & create Quote Content
@@ -450,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
 
                 c.moveToFirst();
 
-                Log.i("Quote Assembly", "Quote ID: " + c.getString(idIndex) + ". " + c.getString(quoteIndex) + " - " + c.getString(authorIndex) + ". [" + c.getString(categoriesIndex) + "]");
+                Log.i("chooseQuote", "Quote ID: " + c.getString(idIndex) + ". " + c.getString(quoteIndex) + " - " + c.getString(authorIndex) + ". [" + c.getString(categoriesIndex) + "]");
                 quoteContent = c.getString(quoteIndex) + "\n - " + c.getString(authorIndex);
                 quoteContentArray.add(quoteContent);
 
@@ -461,7 +484,7 @@ public class MainActivity extends AppCompatActivity {
             //Log.i("Quote Array", quoteContentArray.toString());
 
             quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
-            Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
+            //Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
 
             //quoteTextView.setTextSize(50);
 
@@ -471,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
             //Log.i("Quote No", Integer.toString(quoteNo));
             c = sqLiteDatabase.rawQuery("SELECT * FROM quoteLibrary WHERE id = " + selectedQuoteIds.get(0), null);
             c.moveToFirst();
-            Log.i("Setup Favourite Check","ID: " + selectedQuoteIds.get(0) + ". 1 = Fav, 0 = Not Fav: " + c.getString(favouriteIndex));
+            //Log.i("Setup Favourite Check","ID: " + selectedQuoteIds.get(0) + ". 1 = Fav, 0 = Not Fav: " + c.getString(favouriteIndex));
             if (c.getInt(favouriteIndex) != 0) {
                 favouriteButton.setBackgroundResource(R.drawable.simple_red_heart_small);
             }
