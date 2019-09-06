@@ -17,8 +17,8 @@
         <Button
             android:id="@+id/favourites_menu_button"
             style="@style/Widget.AppCompat.Button.Small"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:onClick="favouritesMenuButtonClicked"
             android:text="*"
             android:visibility="gone"
@@ -28,8 +28,8 @@
         <Button
             android:id="@+id/filter_menu_button"
             style="@style/Widget.AppCompat.Button.Small"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:onClick="filterMenuButtonClicked"
             android:text="V"
             android:visibility="gone"
@@ -39,8 +39,8 @@
         <Button
             android:id="@+id/menu_button"
             style="@style/Widget.AppCompat.Button.Small"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:onClick="menuButtonClicked"
             android:text=":"
             app:layout_constraintEnd_toEndOf="parent"
@@ -49,33 +49,49 @@
     </android.support.v7.widget.LinearLayoutCompat>
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/backgroundImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:alpha=".2"
+        android:scaleType="fitCenter"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/bg" />
+        app:srcCompat="@drawable/bg1" />
 
-    <TextView
-        android:id="@+id/quoteTextView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:gravity="center_vertical"
-        android:padding="20dp"
-        android:singleLine="false"
-        android:text='"Lovely longer quotes may cause a problem if they are super long, but they still go here..." - The Dev'
-        android:textSize="36sp"
-        app:autoSizeMaxTextSize="36sp"
-        app:autoSizeMinTextSize="20sp"
-        app:autoSizeStepGranularity="2sp"
-        app:autoSizeTextType="uniform"
-        app:layout_constraintBottom_toTopOf="@+id/favouriteButton"
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true"
+        android:padding="10dp"
+        app:cardBackgroundColor="#00FFFFFF"
+        app:cardElevation="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/counterTextView" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/quoteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|fill_horizontal|center_vertical"
+            android:gravity="center_vertical"
+            android:maxHeight="600dp"
+            android:padding="10dp"
+            android:singleLine="false"
+            android:text='"Lovely longer quotes may cause a problem if they are super long, but they still go here..." - The Dev'
+            android:textSize="32sp"
+            app:autoSizeMaxTextSize="32sp"
+            app:autoSizeMinTextSize="20sp"
+            app:autoSizeStepGranularity="2sp"
+            app:autoSizeTextType="uniform" />
+
+    </android.support.v7.widget.CardView>
+
 
     <Button
         android:id="@+id/favouriteButton"

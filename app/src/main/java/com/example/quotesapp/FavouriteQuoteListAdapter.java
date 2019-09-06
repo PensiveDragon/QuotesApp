@@ -2,12 +2,15 @@ package com.example.quotesapp;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -65,7 +68,9 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
             @Override
             public void onClick(View v) {
                 mExpandedPosition = isExpanded ? -1 : position;
-                //TransitionManager.beginDelayedTransition(recyclerView);   - Can't make this damn thing work correctly!!
+
+
+                //TransitionManager.beginDelayedTransition(recyclerView);   //- Can't make this damn thing work correctly!!
 
                 //Log.i("onBindViewHolder", "Clicked isExpanded = " + isExpanded);
 
@@ -90,13 +95,13 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
 
 
 
-
+/*
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
 
         this.recyclerView = recyclerView;
-    }
+    }*/
 
 /*    //working simple expander
     @Override
@@ -129,6 +134,7 @@ public class FavouriteQuoteListAdapter extends RecyclerView.Adapter<FavouriteQuo
         private TextView textViewQuote;
         private View expandConstraint;
         private View deleteButton;
+        private View recyclerView;
 
         public FavouriteQuoteViewHolder(View itemView) {
             super(itemView);

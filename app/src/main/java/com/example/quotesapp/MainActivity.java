@@ -1,17 +1,23 @@
 package com.example.quotesapp;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Point;
 import android.media.Image;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.transition.TransitionManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -41,15 +47,21 @@ public class MainActivity extends AppCompatActivity {
     int favouriteIndex;
     int favouriteCount;
     int favouriteLimit = 100;
-    public int max;
+    public int max = 5;
     public int quoteNo = 0;
     TextView counterTextView;
     String counterString;
     ArrayList<String> filters = new ArrayList<>();
     Set generatedCategories = new TreeSet();
+    CardView cardView;
 
     String searchString;
     boolean menuOpen = false;
+    ImageView backgroundImageView;
+    int backgroundInt = 1;
+    int screenWidth;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
         favouritesMenuButton = findViewById(R.id.favourites_menu_button);
         filterMenuButton = findViewById(R.id.filter_menu_button);
         expandedMenu = findViewById(R.id.menuFrame);
+        cardView = findViewById(R.id.cardView);
+        backgroundImageView = findViewById(R.id.backgroundImageView);
+
+        // Code that checks the screen size, for adaptive swiping
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        screenWidth = size.x;
+        Log.i("GestureListener", "Screen width = " + screenWidth);
 
         // Method that checks if the complete database of quotes is loaded, and loads any missing ones.
         checkQuoteDatabase();
@@ -82,6 +103,127 @@ public class MainActivity extends AppCompatActivity {
         // method that selects the 5 quotes to be displayed.
         chooseQuote();
 
+        // creates class that handles the gesture detection.
+        //onTouchGestureListener = new OnTouchGestureListener(this, null, cardView);
+
+        ConstraintLayout background = findViewById(R.id.background);
+
+        background.setOnTouchListener(new OnTouchGestureListener(this, null, cardView) {
+
+            @Override
+            public void onSwipeLeft() {
+
+                Log.i("INFO", "onSwipeLeft");
+
+                if (quoteNo == (max - 1)) {
+                    quoteNo = 0;
+                    Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
+                } else {
+                    quoteNo++;
+                    Log.i("SETTING QUOTE", quoteContentArray.get(quoteNo).toString());
+                }
+                updateBackground();
+
+                cardView.animate()
+                        .scaleX(.5f)
+                        .scaleY(.5f)
+                        .translationX(-screenWidth)
+                        .translationY(0)
+                        .setDuration(500)
+                        .withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                cardView.animate()
+                                        .translationX(screenWidth)
+                                        .translationY(0)
+                                        .setDuration(0)
+                                        .withEndAction(new Runnable() {
+                                            @Override
+                                            public void run() {
+
+                                                quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
+
+                                                checkFavourite();
+                                                updateTextView();
+
+
+                                                cardView.animate()
+                                                        .scaleX(1f)
+                                                        .scaleY(1f)
+                                                        .translationX(0)
+                                                        .translationY(0)
+                                                        .setDuration(500);
+
+                                                ObjectAnimator colorfade = ObjectAnimator.ofObject(cardView, "backgroundColor", new ArgbEvaluator(), 0xBFFFFFFF, 0x00FFFFFF);
+                                                colorfade.setStartDelay(250);
+                                                colorfade.setDuration(150);
+                                                colorfade.start();
+                                            }
+                                        });
+                            }
+                        })
+                        .start();
+//                updateBackground();
+            }
+
+            @Override
+            public void onSwipeRight() {
+
+                Log.i("INFO", "onSwipeRight");
+
+                if (quoteNo == 0) {
+                    quoteNo = (max - 1);
+                } else {
+                    quoteNo--;
+                }
+                updateBackground();
+
+                cardView.animate()
+                        .scaleX(.5f)
+                        .scaleY(.5f)
+                        .translationX(screenWidth)
+                        .translationY(0)
+                        .setDuration(500)
+                        .withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                cardView.animate()
+                                        .translationX(-screenWidth)
+                                        .translationY(0)
+                                        .setDuration(0)
+                                        .withEndAction(new Runnable() {
+                                            @Override
+                                            public void run() {
+
+                                                quoteTextView.setText(quoteContentArray.get(quoteNo).toString());
+                                                checkFavourite();
+                                                updateTextView();
+
+
+                                                cardView.animate()
+                                                        .scaleX(1f)
+                                                        .scaleY(1f)
+                                                        .translationX(0)
+                                                        .translationY(0)
+                                                        .setDuration(500);
+
+                                                ObjectAnimator colorfade = ObjectAnimator.ofObject(cardView, "backgroundColor", new ArgbEvaluator(), 0xBFFFFFFF, 0x00FFFFFF);
+                                                colorfade.setStartDelay(250);
+                                                colorfade.setDuration(150);
+                                                colorfade.start();
+                                            }
+                                        });
+                            }
+                        })
+                        .start();
+                //updateBackground();
+            }
+
+        });
+
+        /*
         ConstraintLayout background = findViewById(R.id.background);
 
         background.setOnTouchListener(new OnSwipeTouchListener(this) {
@@ -115,6 +257,46 @@ public class MainActivity extends AppCompatActivity {
                 updateTextView();
             }
         });
+        */
+    }
+
+    public void updateBackground() {
+
+
+
+        backgroundImageView.animate()
+                .alpha(0)
+                .setStartDelay(0)
+                .setDuration(400)
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.i("MainActivity", "QuoteNo is: " + quoteNo);
+
+                        switch (quoteNo) {
+                            case (0) : backgroundImageView.setImageResource(R.drawable.bg1);
+                            break;
+
+                            case (1) : backgroundImageView.setImageResource(R.drawable.bg2);
+                            break;
+
+                            case (2) : backgroundImageView.setImageResource(R.drawable.bg3);
+                            break;
+
+                            case (3) : backgroundImageView.setImageResource(R.drawable.bg4);
+                            break;
+
+                            case (4) : backgroundImageView.setImageResource(R.drawable.bg5);
+                            break;
+                        }
+
+                        backgroundImageView.animate()
+                                .alpha(0.2f)
+                                .setDuration(200);
+                    }
+                });
+
+
     }
 
     public void checkQuoteDatabase () {
