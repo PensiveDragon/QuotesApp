@@ -13,7 +13,7 @@ Standardised quote input system for easy expanding of quote database.
 Created external code for auto-formatting new quotes for entry.
 
 NOT YET IMPLEMENTED:
-> Customisable notification to prompt the 5 new quotes each day.
+Customisable notification to prompt the 5 new quotes each day.
 System to fully eliminate repeating quotes over a short period of time (however unlikely with a large quote pool).
 Advertising integration, monetisation.
 
