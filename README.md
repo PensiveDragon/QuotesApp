@@ -20,4 +20,4 @@ Advertising integration, monetisation.
 IMPROVEMENTS TO MAKE:
 Improved visuals, button design and interactivity.
 Revisit quote categorisation, unify categories by broader theme.
-'Final' imagery from approved sources safe for public release.
+Final imagery from free-usage sources safe for independent use.
